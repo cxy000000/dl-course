@@ -23,11 +23,39 @@ class Route:
         except Exception as e:
             print(f'发生异常: {str(e)}')
         
+    def get_ridingroute(self, origin, destination):
+        url = f'https://restapi.amap.com/v4/direction/bicycling?origin={origin}&destination={destination}&key={self.api_key}'
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                routes = data['data']['paths']
+                return routes
+            else:
+                print('请求失败')
+        except Exception as e:
+            print(f'发生异常: {str(e)}')
+            
+    def get_drivingroute(self, origin, destination):
+        url = f'https://restapi.amap.com/v3/direction/driving?origin={origin}&destination={destination}&extensions=all&output=JSON&key={self.api_key}'
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                data = response.json()
+                if data['status'] == '1':
+                    routes = data['route']['paths']
+                    return routes
+                else:
+                    print('未找到路径')
+            else:
+                print('请求失败')
+        except Exception as e:
+            print(f'发生异常: {str(e)}')
+        
     def get_geocode(self, address, city=None):
         url = f'https://restapi.amap.com/v3/geocode/geo?key={self.api_key}&address={address}&output=JSON'
         if city:
             url += f'&city={city}'
-            
         try:
             response = requests.get(url)
             if response.status_code == 200:
@@ -53,6 +81,8 @@ class RouteGUI(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.pushButton.clicked.connect(self.get_walking_route)
+        self.ui.pushButton_2.clicked.connect(self.get_riding_route)
+        self.ui.pushButton_3.clicked.connect(self.get_driving_route)
 
     def display_message(self, message):
         self.ui.textEdit.setPlainText(self.ui.textEdit.toPlainText() + message + '\n')
@@ -72,11 +102,59 @@ class RouteGUI(QMainWindow):
             routes = self.route.get_walkingroute(ori_geocode, des_geocode)
             self.ui.textEdit.clear()
             for route in routes:
-                distance = route['distance']  # 步行距离（米）
-                duration = route['duration']  # 步行时间（秒）
+                distance = route['distance']  
+                duration = route['duration']  
                 self.display_message(f'步行距离: {distance}米')
                 self.display_message(f'步行时间: {duration}秒')
                 self.display_message('步行路线:')
+                for step in route['steps']:
+                    instruction = step['instruction']
+                    self.display_message(f'- {instruction}')
+                    
+    def get_riding_route(self):
+        ori_city = self.ui.lineEdit.text()
+        ori_address = self.ui.lineEdit_2.text()
+        des_city = self.ui.lineEdit_3.text()
+        des_address = self.ui.lineEdit_4.text()
+
+        ori_geocode = self.route.get_geocode(ori_address, ori_city)
+        self.display_message(f'出发点坐标: {ori_geocode}')
+        des_geocode = self.route.get_geocode(des_address, des_city)
+        self.display_message(f'目的地坐标: {des_geocode}')
+
+        if ori_geocode and des_geocode:
+            routes = self.route.get_ridingroute(ori_geocode, des_geocode)
+            self.ui.textEdit.clear()
+            for route in routes:
+                distance = route['distance']  
+                duration = route['duration']  
+                self.display_message(f'骑行距离: {distance}米')
+                self.display_message(f'骑行时间: {duration}秒')
+                self.display_message('骑行路线:')
+                for step in route['steps']:
+                    instruction = step['instruction']
+                    self.display_message(f'- {instruction}')
+                    
+    def get_driving_route(self):
+        ori_city = self.ui.lineEdit.text()
+        ori_address = self.ui.lineEdit_2.text()
+        des_city = self.ui.lineEdit_3.text()
+        des_address = self.ui.lineEdit_4.text()
+
+        ori_geocode = self.route.get_geocode(ori_address, ori_city)
+        self.display_message(f'出发点坐标: {ori_geocode}')
+        des_geocode = self.route.get_geocode(des_address, des_city)
+        self.display_message(f'目的地坐标: {des_geocode}')
+
+        if ori_geocode and des_geocode:
+            routes = self.route.get_drivingroute(ori_geocode, des_geocode)
+            self.ui.textEdit.clear()
+            for route in routes:
+                distance = route['distance']  
+                duration = route['duration']  
+                self.display_message(f'行驶距离: {distance}米')
+                self.display_message(f'行驶时间: {duration}秒')
+                self.display_message('行驶路线:')
                 for step in route['steps']:
                     instruction = step['instruction']
                     self.display_message(f'- {instruction}')
