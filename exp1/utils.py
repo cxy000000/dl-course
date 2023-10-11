@@ -10,6 +10,16 @@ class Map_API:
         self.api_key = api_key
 
     def get_walkingroute(self, origin, destination):
+        """
+        Get walking route information from the AMap API.
+
+        Parameters:
+        - origin (str): The origin location for the walking route.
+        - destination (str): The destination location for the walking route.
+
+        Returns:
+        - list: A list of route information.
+        """
         url = f'https://restapi.amap.com/v3/direction/walking?origin={origin}&destination={destination}&key={self.api_key}'
         try:
             response = requests.get(url)
@@ -26,6 +36,16 @@ class Map_API:
             print(f'发生异常: {str(e)}')
         
     def get_ridingroute(self, origin, destination):
+        """
+        Get riding route information from the AMap API.
+
+        Parameters:
+        - origin (str): The origin location for the riding route.
+        - destination (str): The destination location for the riding route.
+
+        Returns:
+        - list: A list of route information.
+        """
         url = f'https://restapi.amap.com/v4/direction/bicycling?origin={origin}&destination={destination}&key={self.api_key}'
         try:
             response = requests.get(url)
@@ -39,6 +59,16 @@ class Map_API:
             print(f'发生异常: {str(e)}')
             
     def get_drivingroute(self, origin, destination):
+        """
+        Get driving route information from the AMap API.
+
+        Parameters:
+        - origin (str): The origin location for the driving route.
+        - destination (str): The destination location for the driving route.
+
+        Returns:
+        - list: A list of route information.
+        """
         url = f'https://restapi.amap.com/v3/direction/driving?origin={origin}&destination={destination}&extensions=all&output=JSON&key={self.api_key}'
         try:
             response = requests.get(url)
@@ -55,6 +85,16 @@ class Map_API:
             print(f'发生异常: {str(e)}')
         
     def get_geocode(self, address, city=None):
+        """
+        Get geocode information (latitude and longitude) from the AMap API.
+
+        Parameters:
+        - address (str): The address for which to obtain geocode information.
+        - city (str, optional): The city to search within (default is None).
+
+        Returns:
+        - str: The location (latitude and longitude) in the format "latitude,longitude".
+        """
         url = f'https://restapi.amap.com/v3/geocode/geo?key={self.api_key}&address={address}&output=JSON'
         if city:
             url += f'&city={city}'
@@ -65,7 +105,7 @@ class Map_API:
                 if data['status'] == '1':
                     geocodes = data['geocodes']
                     if geocodes:
-                        location = geocodes[0]['location']  # 坐标点（经度，纬度）
+                        location = geocodes[0]['location']  
                         return location
                     else:
                         print('未找到匹配的地址')
@@ -77,9 +117,18 @@ class Map_API:
             print(f'发生异常: {str(e)}')
             
     def get_static_map(self, location, zoom, size):
-        # url = f'https://restapi.amap.com/v3/staticmap?location=116.481485,39.990464&zoom=10&size=750*300&markers=mid,,A:116.481485,39.990464&key={self.api_key}'
+        """
+        Get a static map image from the AMap API.
+
+        Parameters:
+        - location (str): The location (latitude and longitude) for the map.
+        - zoom (int): The zoom level for the map.
+        - size (str): The size of the map image in the format "width*height".
+
+        Returns:
+        - bytes: The binary image data of the static map.
+        """
         url = f'https://restapi.amap.com/v3/staticmap?&location={location}&zoom={zoom}&size={size}&markers=mid,0x008000,A:{location}&key={self.api_key}&output=JSON'
-        # # https://restapi.amap.com/v3/staticmap?markers=mid,0xFF0000,A:116.37359,39.92437;116.47359,39.92437&key=您的key
         try:
             response = requests.get(url)
             if response.status_code == 200:
@@ -101,9 +150,9 @@ class RouteGUI(QMainWindow):
         self.ui.pushButton_3.clicked.connect(self.get_driving_route)
         self.setup_ui_style()
 
-    # 美化界面
+    # beautify GUI
     def setup_ui_style(self):
-        # 设置标签样式
+        # label config
         label_style = "font: 25 11pt '微软雅黑 Light';" \
                       "color: rgb(31,31,31);" \
                       "background-color: rgb(255, 255, 255);" \
@@ -114,7 +163,7 @@ class RouteGUI(QMainWindow):
         self.ui.label_3.setStyleSheet(label_style)
         self.ui.label_4.setStyleSheet(label_style)
 
-        # 设置按钮样式,
+        # PushButton config
         button_style = "QPushButton{font: 25 13pt '微软雅黑 Light';color: rgb(255,255,255);" \
                        "background-color: rgb(20,196,188);" \
                        "border: none;border-radius:15px;}" \
@@ -126,11 +175,11 @@ class RouteGUI(QMainWindow):
         self.ui.pushButton_3.setStyleSheet(button_style)
         self.ui.pushButton_back.setStyleSheet(button_style)
 
-        # 设置窗口背景样式
+        # background config
         background_image = QPixmap("background.png")
         background_image = background_image.scaled(850, 850)
         
-        # 改变透明度
+        # alpha
         background_image2 = QPixmap(background_image.size())
         background_image2.fill(Qt.transparent) 
         painter = QPainter(background_image2)
@@ -142,12 +191,12 @@ class RouteGUI(QMainWindow):
         palette.setBrush(QPalette.Window, QBrush(background_image2)) 
         self.setPalette(palette)
 
-        # 设置layout的样式
+        # layout config
         frame_style = "background-color: rgb(255, 255, 255);" \
                       "border: 2px solid rgb(200,200,200);border-radius: 15px;"
         self.ui.formLayoutWidget.setStyleSheet(frame_style)
 
-        # 设置lineEdit的样式
+        # lineEdit config
         line_style = "font: 25 11pt '微软雅黑 Light';" \
                      "color: rgb(31,31,31);" \
                      "background-color: rgb(255, 255, 255);" \
@@ -157,10 +206,24 @@ class RouteGUI(QMainWindow):
         self.ui.lineEdit_3.setStyleSheet(line_style)
         self.ui.lineEdit_4.setStyleSheet(line_style)
         
+        # textEdit config
+        textEdit_style = "font: 25 9pt '微软雅黑 Light';" \
+                     "border:2px solid rgb(20,196,188);border-radius:15px;"
+        self.ui.textEdit.setStyleSheet(textEdit_style)
+        
     def display_message(self, message):
+        """
+        Displays a message in the textEdit widget.
+
+        Parameters:
+        - message (str): The message to be displayed.
+        """
         self.ui.textEdit.setPlainText(self.ui.textEdit.toPlainText() + message + '\n')
 
     def get_walking_route(self):
+        """
+        Retrieves and displays a walking route based on user input.
+        """
         ori_city = self.ui.lineEdit.text()
         ori_address = self.ui.lineEdit_2.text()
         des_city = self.ui.lineEdit_3.text()
@@ -185,6 +248,9 @@ class RouteGUI(QMainWindow):
                     self.display_message(f'- {instruction}')
                     
     def get_riding_route(self):
+        """
+        Retrieves and displays a riding route based on user input.
+        """
         ori_city = self.ui.lineEdit.text()
         ori_address = self.ui.lineEdit_2.text()
         des_city = self.ui.lineEdit_3.text()
@@ -209,6 +275,9 @@ class RouteGUI(QMainWindow):
                     self.display_message(f'- {instruction}')
                     
     def get_driving_route(self):
+        """
+        Retrieves and displays a driving route based on user input.
+        """
         ori_city = self.ui.lineEdit.text()
         ori_address = self.ui.lineEdit_2.text()
         des_city = self.ui.lineEdit_3.text()
@@ -240,9 +309,9 @@ class MenuGUI(QMainWindow):
         self.ui.setupUi(self)
         self.setup_ui_style()
 
-    # 美化界面
+    # beautify GUI
     def setup_ui_style(self):
-        # 设置按钮样式,
+        # label config
         button_style = "QPushButton{font: 25 13pt '微软雅黑 Light';color: rgb(255,255,255);" \
                        "background-color: rgb(20,196,188);" \
                        "border: none;border-radius:15px;}" \
@@ -253,11 +322,11 @@ class MenuGUI(QMainWindow):
         self.ui.pushButton_m.setStyleSheet(button_style)
         self.ui.pushButton_quit.setStyleSheet(button_style)
 
-        # 设置窗口背景样式
+        # background config
         background_image = QPixmap("background.png")
         background_image = background_image.scaled(850, 850)
         
-        # 改变透明度
+        # alpha
         background_image2 = QPixmap(background_image.size())
         background_image2.fill(Qt.transparent) 
         painter = QPainter(background_image2)
@@ -269,12 +338,12 @@ class MenuGUI(QMainWindow):
         palette.setBrush(QPalette.Window, QBrush(background_image2)) 
         self.setPalette(palette)
 
-        # 设置layout的样式
+        # layout config
         frame_style = "background-color: rgb(255, 255, 255);" \
                       "border: 2px solid rgb(255,255,255);border-radius: 15px;"
         self.ui.verticalLayoutWidget.setStyleSheet(frame_style)
 
-        # 设置lineEdit的样式
+        # lineEdit config
         line_style = "color: rgb(31,31,31);" \
                      "background-color: rgb(255, 255, 255);" \
                     #  "border:2px solid rgb(20,196,188);border-radius:15px;"
@@ -290,9 +359,9 @@ class SMapGUI(QMainWindow):
         self.ui.pushButton.clicked.connect(self.get_image)
         self.setup_ui_style()
 
-    # 美化界面
+    # beautify GUI
     def setup_ui_style(self):
-        # 设置标签样式
+        # label config
         label_style = "font: 25 11pt '微软雅黑 Light';" \
                       "color: rgb(31,31,31);" \
                       "background-color: rgb(255, 255, 255);" \
@@ -301,7 +370,7 @@ class SMapGUI(QMainWindow):
         self.ui.label.setStyleSheet(label_style)
         self.ui.label_2.setStyleSheet(label_style)
 
-        # 设置按钮样式,
+        # PushButton config
         button_style = "QPushButton{font: 25 14pt '微软雅黑 Light';color: rgb(255,255,255);" \
                        "background-color: rgb(20,196,188);" \
                        "border: none;border-radius:15px;}" \
@@ -311,11 +380,11 @@ class SMapGUI(QMainWindow):
         self.ui.pushButton_back.setStyleSheet(button_style)
         self.ui.pushButton.setStyleSheet(button_style)
 
-        # 设置窗口背景样式
+        # background config
         background_image = QPixmap("background.png")
         background_image = background_image.scaled(850, 850)
         
-        # 改变透明度
+        # alpha
         background_image2 = QPixmap(background_image.size())
         background_image2.fill(Qt.transparent) 
         painter = QPainter(background_image2)
@@ -327,12 +396,12 @@ class SMapGUI(QMainWindow):
         palette.setBrush(QPalette.Window, QBrush(background_image2)) 
         self.setPalette(palette)
 
-        # 设置layout的样式
+        # layout config
         frame_style = "background-color: rgb(255, 255, 255);" \
                       "border: 2px solid rgb(200,200,200);border-radius: 15px;"
         self.ui.gridLayoutWidget.setStyleSheet(frame_style)
 
-        # 设置lineEdit的样式
+        # lineEdit config
         line_style = "font: 25 11pt '微软雅黑 Light';" \
                      "color: rgb(31,31,31);" \
                      "background-color: rgb(255, 255, 255);" \
@@ -340,6 +409,12 @@ class SMapGUI(QMainWindow):
         self.ui.lineEdit.setStyleSheet(line_style)
 
     def get_image(self):
+        """
+        Retrieves and displays a static map image based on user input.
+        - Fetches the location, zoom level, and geocode.
+        - Calls the get_static_map method from the Map_API class to obtain the map image.
+        - Sets the map image to be displayed on the GUI.
+        """
         location = self.ui.lineEdit.text()
         zoom = self.ui.spinBox.text()
         loc_geocode = self.route.get_geocode(location)

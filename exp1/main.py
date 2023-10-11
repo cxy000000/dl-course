@@ -14,7 +14,7 @@ if __name__ == "__main__":
     w_map = SMapGUI(api_key)
     w_menu.show()
     
-    # 跳联关系
+    # Jump link
     w_menu.ui.pushButton_r.clicked.connect(lambda: closeAndShowRouteWindow(w_menu, w_route))
     w_menu.ui.pushButton_m.clicked.connect(lambda: closeAndShowRouteWindow(w_menu, w_map))
     w_route.ui.pushButton_back.clicked.connect(lambda: closeAndShowRouteWindow(w_route, w_menu))
